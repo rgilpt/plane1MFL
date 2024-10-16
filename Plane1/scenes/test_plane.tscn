@@ -1,7 +1,7 @@
 [gd_scene load_steps=7 format=3 uid="uid://chsnhjoqa36uu"]
 
 [ext_resource type="Texture2D" uid="uid://mc6otb5oywgu" path="res://assets/tileset_terrain.png" id="1_ycrhp"]
-[ext_resource type="PackedScene" uid="uid://cv6hgjshhejvp" path="res://scenes/bullet.tscn" id="2_vs37y"]
+[ext_resource type="PackedScene" uid="uid://cv6hgjshhejvp" path="res://scenes/plane.tscn" id="2_vs37y"]
 
 [sub_resource type="Gradient" id="Gradient_becap"]
 colors = PackedColorArray(0.620924, 0.744998, 0.997064, 1, 0, 0.247552, 0.43914, 1)

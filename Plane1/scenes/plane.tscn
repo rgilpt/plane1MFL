@@ -1,10 +1,10 @@
 [gd_scene load_steps=10 format=3 uid="uid://cv6hgjshhejvp"]
 
-[ext_resource type="Script" path="res://scripts/Bullet.gd" id="1_w65wj"]
-[ext_resource type="Texture2D" uid="uid://cxttljhv3jfly" path="res://assets/Missile.png" id="2_18knh"]
-[ext_resource type="PackedScene" uid="uid://dejgiwh35b6e4" path="res://vectors/VectorsLayer.tscn" id="3_wsp6o"]
-[ext_resource type="Texture2D" uid="uid://cgl5yyb2phfbs" path="res://assets/car.png" id="4_lbjud"]
-[ext_resource type="PackedScene" uid="uid://b3121rsuqlod3" path="res://scenes/wing.tscn" id="5_stlf2"]
+[ext_resource type="Script" path="res://scripts/Bullet.gd" id="1_m4fpe"]
+[ext_resource type="Texture2D" uid="uid://cxttljhv3jfly" path="res://assets/Missile.png" id="2_p6aij"]
+[ext_resource type="PackedScene" uid="uid://dejgiwh35b6e4" path="res://vectors/VectorsLayer.tscn" id="3_spq34"]
+[ext_resource type="Texture2D" uid="uid://cgl5yyb2phfbs" path="res://assets/car.png" id="4_7itlq"]
+[ext_resource type="PackedScene" uid="uid://b3121rsuqlod3" path="res://scenes/wing.tscn" id="5_grtm3"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_obgme"]
 size = Vector2(167, 18)
@@ -25,12 +25,12 @@ continuous_cd = 1
 contact_monitor = true
 max_contacts_reported = 10
 angular_damp = 0.1
-script = ExtResource("1_w65wj")
+script = ExtResource("1_m4fpe")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 texture_filter = 1
 scale = Vector2(6, 6)
-texture = ExtResource("2_18knh")
+texture = ExtResource("2_p6aij")
 offset = Vector2(16, 0)
 
 [node name="Timer" type="Timer" parent="."]
@@ -41,7 +41,7 @@ autostart = true
 position = Vector2(5.5, -3)
 shape = SubResource("RectangleShape2D_obgme")
 
-[node name="VectorsLayer" parent="." instance=ExtResource("3_wsp6o")]
+[node name="VectorsLayer" parent="." instance=ExtResource("3_spq34")]
 
 [node name="TimerPrime" type="Timer" parent="."]
 wait_time = 0.2
@@ -74,7 +74,7 @@ physics_material_override = SubResource("PhysicsMaterial_wjxqk")
 
 [node name="Sprite2D" type="Sprite2D" parent="RearWheel"]
 texture_filter = 1
-texture = ExtResource("4_lbjud")
+texture = ExtResource("4_7itlq")
 region_enabled = true
 region_rect = Rect2(106.981, 89.0389, 18.0477, 17.97)
 
@@ -95,7 +95,7 @@ mass = 0.14
 
 [node name="Sprite2D" type="Sprite2D" parent="FrontWheel"]
 texture_filter = 1
-texture = ExtResource("4_lbjud")
+texture = ExtResource("4_7itlq")
 region_enabled = true
 region_rect = Rect2(106.981, 89.0389, 18.0477, 17.97)
 
@@ -146,7 +146,7 @@ position = Vector2(-27, -2)
 node_a = NodePath("..")
 node_b = NodePath("../Wing")
 
-[node name="Wing" parent="." instance=ExtResource("5_stlf2")]
+[node name="Wing" parent="." instance=ExtResource("5_grtm3")]
 position = Vector2(-39, -2)
 mass = 0.028
 cl = 0.3

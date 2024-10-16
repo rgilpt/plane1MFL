@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3 uid="uid://cscr140dfpgmj"]
+
+[ext_resource type="Texture2D" uid="uid://dflu0s3rii62k" path="res://assets/tank target.png" id="1_j2p0i"]
+
+[node name="raios" type="Node2D"]
+
+[node name="RigidBody2D" type="RigidBody2D" parent="."]
+scale = Vector2(-1, 1)
+
+[node name="Sprite2D" type="Sprite2D" parent="RigidBody2D"]
+texture = ExtResource("1_j2p0i")

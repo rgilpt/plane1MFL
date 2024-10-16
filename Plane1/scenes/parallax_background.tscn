@@ -1,0 +1,50 @@
+[gd_scene load_steps=6 format=3 uid="uid://cxjh5y1v4n8v1"]
+
+[ext_resource type="Texture2D" uid="uid://b3cgwbn0vpfmn" path="res://assets/mountain.png" id="1_5bptv"]
+[ext_resource type="Texture2D" uid="uid://dcj7urnup1wy3" path="res://assets/Background.Mountain.png" id="2_68y2y"]
+[ext_resource type="Texture2D" uid="uid://yr8v4cp7n2he" path="res://assets/plains.png" id="3_1d3mh"]
+
+[sub_resource type="Gradient" id="Gradient_ehvjm"]
+offsets = PackedFloat32Array(0, 0.53012, 1)
+colors = PackedColorArray(0.52796, 0.819667, 0.930226, 1, 0.659158, 0.771514, 0.998037, 1, 1, 1, 1, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_f4xpg"]
+gradient = SubResource("Gradient_ehvjm")
+fill_from = Vector2(0.504348, 0.586957)
+
+[node name="ParallaxBackground" type="ParallaxBackground"]
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(621, 460)
+scale = Vector2(22.5312, 16.1562)
+texture = SubResource("GradientTexture2D_f4xpg")
+
+[node name="ParallaxLayer2" type="ParallaxLayer" parent="."]
+position = Vector2(-236, -744)
+motion_scale = Vector2(0.002, 0.002)
+
+[node name="Background_mountain" type="Sprite2D" parent="ParallaxLayer2"]
+texture_filter = 1
+position = Vector2(785, 917)
+scale = Vector2(8, 8)
+texture = ExtResource("1_5bptv")
+
+[node name="ParallaxLayer" type="ParallaxLayer" parent="."]
+position = Vector2(-59, -464)
+motion_scale = Vector2(0.004, 0.004)
+
+[node name="Background_mountain" type="Sprite2D" parent="ParallaxLayer"]
+texture_filter = 1
+position = Vector2(137, 686)
+scale = Vector2(6, 6)
+texture = ExtResource("2_68y2y")
+
+[node name="ParallaxLayer3" type="ParallaxLayer" parent="."]
+position = Vector2(84, -801)
+motion_scale = Vector2(0.006, 0.006)
+
+[node name="Background_mountain" type="Sprite2D" parent="ParallaxLayer3"]
+texture_filter = 1
+position = Vector2(398, 958)
+scale = Vector2(4, 4)
+texture = ExtResource("3_1d3mh")

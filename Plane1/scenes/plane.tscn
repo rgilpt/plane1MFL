@@ -1,25 +1,30 @@
 [gd_scene load_steps=10 format=3 uid="uid://cv6hgjshhejvp"]
 
-[ext_resource type="Script" path="res://scripts/Bullet.gd" id="1_m4fpe"]
-[ext_resource type="Texture2D" uid="uid://cxttljhv3jfly" path="res://assets/Missile.png" id="2_p6aij"]
+[ext_resource type="Script" uid="uid://b1h5ggnqumey2" path="res://scripts/Bullet.gd" id="1_m4fpe"]
+[ext_resource type="Texture2D" uid="uid://b05bhi2vvr0p3" path="res://assets/plane.png" id="2_ec1pi"]
 [ext_resource type="PackedScene" uid="uid://dejgiwh35b6e4" path="res://vectors/VectorsLayer.tscn" id="3_spq34"]
 [ext_resource type="Texture2D" uid="uid://cgl5yyb2phfbs" path="res://assets/car.png" id="4_7itlq"]
 [ext_resource type="PackedScene" uid="uid://b3121rsuqlod3" path="res://scenes/wing.tscn" id="5_grtm3"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_obgme"]
-size = Vector2(167, 18)
+size = Vector2(172, 69)
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_wjxqk"]
 friction = 0.5
 absorbent = true
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_u10yp"]
+radius = 3.0
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_a5iv8"]
 
-[node name="Plane" type="RigidBody2D" groups=["Bullet"]]
+[node name="Plane" type="RigidBody2D" groups=["Plane"]]
 collision_layer = 2
 collision_mask = 2
+mass = 0.8
+gravity_scale = 0.45
+center_of_mass_mode = 1
+center_of_mass = Vector2(8, 20)
 can_sleep = false
 continuous_cd = 1
 contact_monitor = true
@@ -29,16 +34,17 @@ script = ExtResource("1_m4fpe")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 texture_filter = 1
-scale = Vector2(6, 6)
-texture = ExtResource("2_p6aij")
-offset = Vector2(16, 0)
+position = Vector2(28, -20)
+scale = Vector2(3.17188, 3.17188)
+texture = ExtResource("2_ec1pi")
+offset = Vector2(2.75862, 5.99015)
 
 [node name="Timer" type="Timer" parent="."]
-wait_time = 10.0
-autostart = true
+wait_time = 0.5
+one_shot = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(5.5, -3)
+position = Vector2(28, -20.5)
 shape = SubResource("RectangleShape2D_obgme")
 
 [node name="VectorsLayer" parent="." instance=ExtResource("3_spq34")]
@@ -51,7 +57,7 @@ autostart = true
 zoom = Vector2(0.3, 0.3)
 
 [node name="RearDampedSpringJoint2D" type="DampedSpringJoint2D" parent="."]
-position = Vector2(-13, 10)
+position = Vector2(-39, 12)
 node_a = NodePath("..")
 node_b = NodePath("../RearWheel")
 length = 15.0
@@ -60,20 +66,22 @@ stiffness = 1.5
 damping = 1.22
 
 [node name="RearPinJoint2D" type="PinJoint2D" parent="."]
-position = Vector2(-13, 26)
+position = Vector2(-39, 31)
 node_a = NodePath("..")
 node_b = NodePath("../RearWheel")
 softness = 1.47
 
 [node name="RearWheel" type="RigidBody2D" parent="."]
-position = Vector2(-13, 26)
+position = Vector2(-39, 31)
 collision_layer = 2
 collision_mask = 2
 mass = 0.14
 physics_material_override = SubResource("PhysicsMaterial_wjxqk")
+gravity_scale = 0.5
 
 [node name="Sprite2D" type="Sprite2D" parent="RearWheel"]
 texture_filter = 1
+scale = Vector2(0.2, 0.2)
 texture = ExtResource("4_7itlq")
 region_enabled = true
 region_rect = Rect2(106.981, 89.0389, 18.0477, 17.97)
@@ -92,6 +100,7 @@ position = Vector2(69, 29)
 collision_layer = 2
 collision_mask = 2
 mass = 0.14
+gravity_scale = 0.5
 
 [node name="Sprite2D" type="Sprite2D" parent="FrontWheel"]
 texture_filter = 1
@@ -103,6 +112,7 @@ region_rect = Rect2(106.981, 89.0389, 18.0477, 17.97)
 shape = SubResource("CircleShape2D_a5iv8")
 
 [node name="Label" type="Label" parent="."]
+visible = false
 offset_left = 3.0
 offset_top = -46.0
 offset_right = 43.0
@@ -110,6 +120,7 @@ offset_bottom = -23.0
 
 [node name="Label2" type="Label" parent="."]
 auto_translate_mode = 1
+visible = false
 offset_left = 4.0
 offset_top = -92.0
 offset_right = 44.0
@@ -117,40 +128,71 @@ offset_bottom = -69.0
 
 [node name="Label3" type="Label" parent="."]
 auto_translate_mode = 1
+visible = false
 offset_left = 49.0
 offset_top = -48.0
 offset_right = 89.0
 offset_bottom = -25.0
 
 [node name="RayCast2D" type="RayCast2D" parent="."]
+visible = false
 collide_with_bodies = false
 
 [node name="RayCast2D2" type="RayCast2D" parent="."]
+visible = false
+modulate = Color(0, 0.579817, 0.157111, 1)
 collide_with_bodies = false
 
 [node name="RayCast2D3" type="RayCast2D" parent="."]
+visible = false
 modulate = Color(1, 0.219608, 1, 1)
 collide_with_bodies = false
 
 [node name="RayCast2D4" type="RayCast2D" parent="."]
+visible = false
 modulate = Color(0.351927, 0.755209, 1.54018e-06, 1)
 collide_with_bodies = false
 
+[node name="RayCast2D5" type="RayCast2D" parent="."]
+visible = false
+modulate = Color(1, 0.137255, 1, 1)
+collide_with_bodies = false
+
+[node name="RayCast2D6" type="RayCast2D" parent="."]
+visible = false
+modulate = Color(0.662351, 0.66235, 0, 1)
+collide_with_bodies = false
+
+[node name="RayCast2D7" type="RayCast2D" parent="."]
+visible = false
+modulate = Color(0.662351, 0.66235, 0, 1)
+collide_with_bodies = false
+
 [node name="PinJoint2D3" type="PinJoint2D" parent="."]
-position = Vector2(-52, -5)
+visible = false
+position = Vector2(-76, -2)
 node_a = NodePath("..")
 node_b = NodePath("../Wing")
 
 [node name="PinJoint2D4" type="PinJoint2D" parent="."]
-position = Vector2(-27, -2)
+visible = false
+position = Vector2(-58, -2)
 node_a = NodePath("..")
 node_b = NodePath("../Wing")
 
-[node name="Wing" parent="." instance=ExtResource("5_grtm3")]
-position = Vector2(-39, -2)
+[node name="Wing" parent="." node_paths=PackedStringArray("parent_body") instance=ExtResource("5_grtm3")]
+visible = false
+position = Vector2(-83, -2)
+scale = Vector2(1, 1)
 mass = 0.028
+total_fins_area = 0.2
 cl = 0.3
+parent_body = NodePath("..")
+
+[node name="RateFire" type="Timer" parent="."]
+one_shot = true
 
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]
 [connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]
 [connection signal="timeout" from="TimerPrime" to="." method="_on_timer_prime_timeout"]
+[connection signal="timeout" from="RateFire" to="." method="_on_rate_fire_timeout"]

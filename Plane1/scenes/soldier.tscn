@@ -1,0 +1,17 @@
+[gd_scene load_steps=4 format=3 uid="uid://cehage3vp8t2b"]
+
+[ext_resource type="Texture2D" uid="uid://codvwfkqxxy4x" path="res://assets/Soldier1.png" id="1_3ekc7"]
+[ext_resource type="Script" uid="uid://cb121g5ixix3m" path="res://scenes/soldier.gd" id="1_q2rr1"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_q2rr1"]
+height = 64.0
+
+[node name="Soldier" type="CharacterBody2D"]
+script = ExtResource("1_q2rr1")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture_filter = 1
+texture = ExtResource("1_3ekc7")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CapsuleShape2D_q2rr1")

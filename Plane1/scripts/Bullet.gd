@@ -6,12 +6,12 @@ extends RigidBody2D
 
 var is_fired = false
 
-var fins_position = Vector2(11, 0)
+var fins_position = Vector2(9.5, 0)
 
 var total_fins_area = 4
 var cl = 0.3
 
-var total_fins_section_area = 0.1
+var total_fins_section_area = 1.0
 var cd = 0.4
 
 var drag_mod_coef = 0.6
@@ -44,14 +44,21 @@ var max_left_engine_angle = 10.0
 var max_right_engine_angle = -10.0
 
 var torque_pitch = 12
-var torque_pitch_controlled = 18
+var torque_pitch_controlled = 500
 var c_torque_pitch = 0
-var change_angle = -1
+var change_angle = -1.8
+var change_angle_nominal = -0.2
 var is_inverted = false
 var current_angle = 0
 var is_pitching = false
 
 var heading_angle = 0
+
+var rof:float = 0.7
+var ready_to_fire:bool = true
+@onready var rate_fire: Timer = $RateFire
+
+var bomb_fire_coef = 1.0
 
 @onready var collision_shape_2d = $CollisionShape2D
 
@@ -65,8 +72,21 @@ var heading_angle = 0
 @onready var label_3: Label = $Label3
 
 @onready var wing: RigidBody2D = $Wing
+var tail_wing_pos = Vector2(-100, 0)
+@onready var trottle_viewer: TextureProgressBar = $"../CanvasLayer/TrottleViewer"
 
 var is_restarting:bool = false
+var is_starting:bool = true
+const BULLET = preload("res://scenes/bullet.tscn")
+
+const BOMB = preload("res://scenes/bomb.tscn")
+
+var bomb_position = Vector2(20, 30)
+var is_fliped = false
+
+var ammo_bombs = 4
+
+var prestige = 0
 
 func fired(initial_speed_value, power, initial_angle, engine=true):
 	
@@ -81,6 +101,15 @@ func fired(initial_speed_value, power, initial_angle, engine=true):
 	
 func _ready() -> void:
 	is_restarting = false
+	wing.joint = true
+	
+	
+func sas_on():
+	var difference = current_angle - heading_angle
+	label.set_text("{v}".format({"v": "%0.2f" % rad_to_deg(difference)}))
+	if abs(difference) > 0.02:
+		apply_torque( sign(-difference) * torque_pitch_controlled)
+	
 func _physics_process(delta):
 	#if not has_engine:
 		#plume.set_off()
@@ -105,11 +134,14 @@ func _physics_process(delta):
 	
 	if Input.is_action_pressed("ui_up"):
 		power += delta_power
+		is_starting = false
 	elif Input.is_action_pressed("ui_down"):
 		power -= delta_power
 	power = clamp(power, 0, max_power)
+	var current_value = 100.0/max_power * power
+	trottle_viewer.value = current_value
 	
-	label.set_text(str(power))
+	#label.set_text(str(power))
 	if Input.is_action_just_released("ui_flip"):
 		flip()
 		if is_inverted:
@@ -120,7 +152,7 @@ func _physics_process(delta):
 			wing.is_inverted = true
 		
 	if Input.is_action_pressed("ui_left"):
-		c_torque_pitch = change_angle
+		c_torque_pitch = change_angle 
 		is_pitching = true
 	elif Input.is_action_pressed("ui_right"):
 		c_torque_pitch = -change_angle
@@ -133,50 +165,75 @@ func _physics_process(delta):
 		
 		
 	
-	if Input.is_action_just_pressed("ui_accept"):
-		self.position += Vector2(0, -100)
+	if Input.is_action_pressed("ui_accept") and ready_to_fire:
+		ready_to_fire = false
+		rate_fire.wait_time = rof
+		rate_fire.start()
+
+		var new_bullet = BULLET.instantiate()
+		var new_speed = Vector2(1,0).rotated(rotation) * 2000
+		new_bullet.set_speed(new_speed)
+		new_bullet.position = position + Vector2(70,-30).rotated(rotation)
+		get_parent().add_child(new_bullet)
+		#self.position += Vector2(0, -100)
+		
+	if Input.is_action_just_pressed("ui_fire_bomb") and ammo_bombs > 0:
+		var new_bomb = BOMB.instantiate()
+		
+		new_bomb.position = position + bomb_position.rotated(rotation)
+		new_bomb.released(linear_velocity * bomb_fire_coef)
+		get_parent().add_child(new_bomb)
+		
+		ammo_bombs -= 1
+		
+	
 	if Input.is_action_just_released("ui_reset_position"):
 		self.position = Vector2(0, -500)
 	if Input.is_action_just_released("ui_restart"):
 		is_restarting = true
+		$Timer.start()
+	$"../CanvasLayer/L_Prestige".set_text(
+		"Prestige: {v}".format({"v": "%0.2f" % prestige}))
+
 		#get_tree().reload_current_scene()
 func flip():
+	if is_fliped:
+		is_fliped = false
+	else:
+		is_fliped = true
+		
+	var my_plane = get_tree().get_first_node_in_group("Plane")
+	
 	var sprite_2d: Sprite2D = $Sprite2D
 	sprite_2d.scale.y = -sprite_2d.scale.y
 	
 	var rear_wheel: RigidBody2D = $RearWheel
-	rear_wheel.position.y = -rear_wheel.position.y
+	rear_wheel.position.y = -rear_wheel.position.y  - 40
 	var rear_pin_joint_2d: PinJoint2D = $RearPinJoint2D
 	rear_pin_joint_2d.node_a = ""
 	rear_pin_joint_2d.node_b = ""
-	rear_pin_joint_2d.position.y = -rear_pin_joint_2d.position.y
-	rear_pin_joint_2d.node_a = get_parent().get_node("Bullet").get_path()
+	rear_pin_joint_2d.position.y = -rear_pin_joint_2d.position.y - 40
+
+	rear_pin_joint_2d.node_a = my_plane.get_path()
 	rear_pin_joint_2d.node_b = rear_wheel.get_path()
 	
 	var rear_damped_spring_joint_2d: DampedSpringJoint2D = $RearDampedSpringJoint2D
 	rear_damped_spring_joint_2d.position.y = -rear_damped_spring_joint_2d.position.y
 
 	var front_wheel: RigidBody2D = $FrontWheel
-	front_wheel.position.y = -front_wheel.position.y
+	front_wheel.position.y = -front_wheel.position.y - 40
 	var pin_joint_2d_2: PinJoint2D = $PinJoint2D2
 	pin_joint_2d_2.node_a = ""
 	pin_joint_2d_2.node_b = ""
-	pin_joint_2d_2.position.y = -pin_joint_2d_2.position.y
-	pin_joint_2d_2.node_a = get_parent().get_node("Bullet").get_path()
+	pin_joint_2d_2.position.y = -pin_joint_2d_2.position.y - 40
+	pin_joint_2d_2.node_a = my_plane.get_path()
 	pin_joint_2d_2.node_b = front_wheel.get_path()
+	if is_fliped:
+		bomb_position = Vector2(20, -70)
+	else:
+		bomb_position = Vector2(20, 30)
 	
-	#var new_pin: PinJoint2D = PinJoint2D.new()
-	#new_pin.position = pin_joint_2d_2.position
-	#new_pin.position.y = -pin_joint_2d_2.position.y
-	##pin_joint_2d_2.position.y = -pin_joint_2d_2.position.y
-	#add_child(new_pin)
-	#new_pin.node_a = get_parent().get_node("Bullet").get_path()
-	#new_pin.node_b = pin_joint_2d_2.node_b
-	#
-	#pin_joint_2d_2.queue_free()
 	
-	#front_wheel.position.y = -front_wheel.position.y
-
 
 
 func set_vector(node, camera_2d):
@@ -235,10 +292,13 @@ func lift_angle_of_attack_mod(aa):
 	if aa > -0.087 and aa < 0.262:
 		return 5.747 * aa + 0.5 
 	elif aa >= 0.262 and aa < 0.35:
+		#return 2
 		return 1.75
-	elif aa < -0.087 and aa > -0.262:
-		return 0.3
+	elif aa < -0.087 and aa > -0.1745:
+		#return -0.6
+		return -0.3
 	elif aa > 0.35:
+		#return 0.4
 		return 0.2
 	else:
 		return 0
@@ -256,8 +316,8 @@ func lift_force_calc(aa, direction_vector, l_velocity):
 	var lift_force = l_velocity.normalized().rotated(-PI/2)
 	
 	var lift_aa_coef = lift_angle_of_attack_mod(aa)
-	print("lift_aa_coef: {v}".format({"v":lift_aa_coef}))
-	print("l_velocity.length(): {v}".format({"v":l_velocity.length()}))
+	#print("lift_aa_coef: {v}".format({"v":lift_aa_coef}))
+	#print("l_velocity.length(): {v}".format({"v":l_velocity.length()}))
 	
 	
 	var lift_force_length = (0.5 * .002377 * 
@@ -287,27 +347,57 @@ func _integrate_forces(state):
 	var ray_cast_2d_2: RayCast2D = $RayCast2D2
 	var ray_cast_2d_3: RayCast2D = $RayCast2D3
 	var ray_cast_2d_4: RayCast2D = $RayCast2D4
+	var ray_cast_2d_5: RayCast2D = $RayCast2D5
+	var ray_cast_2d_6: RayCast2D = $RayCast2D6
+	var ray_cast_2d_7: RayCast2D = $RayCast2D7
+
 	heading_angle = wrapf(heading_angle, -PI, PI)
 	var my_rotation = rotation
 	
 	
 	var aa = -(direction_vector.rotated(my_rotation)).angle_to(velocity_vector)
+	#print(aa)
 	#if is_inverted:
 		#aa = -aa
 	
-	#aa = wrapf(aa, -PI, PI)
+	aa = wrapf(aa, -PI, PI)
 	
 	
 	
 	lift_force = lift_force_calc(aa, direction_vector, linear_velocity)
 	drag_force = drag_force_calc(aa, direction_vector, linear_velocity)
+	#lift_force = lift_force_calc(aa, direction_vector, linear_velocity)
+	#drag_force = drag_force_calc(aa, direction_vector, linear_velocity)
 	
 	
 	displacement = fins_position.rotated(rotation)
+	
+	#lift_force = lift_force.rotated(rotation)
+	#drag_force = drag_force.rotated(rotation)
+	
+	#if is_inverted:
+		#displacement.x = -displacement.x
 	if is_inverted:
-		displacement.x = -displacement.x
-	apply_force(lift_force.rotated(rotation), displacement)
+		#displacement = - displacement
+		lift_force = - lift_force
+		#if (heading_angle < PI and heading_angle > PI/2) or (heading_angle > -PI and heading_angle < -PI/2) :
+			#displacement = - displacement
+			##lift_force.x = - lift_force.x
+			#apply_force(lift_force.rotated(rotation), displacement)
+			##drag_force = - drag_force
+			#apply_force(drag_force.rotated(rotation), displacement)
+		#else:
+			#apply_force(lift_force, displacement)
+			#apply_force(drag_force, displacement)
+		
+	else:
+		pass
+	apply_force(lift_force, displacement)
 	apply_force(drag_force, displacement)
+	
+	ray_cast_2d_2.position = displacement
+	ray_cast_2d_2.target_position = lift_force
+		
 	#print(drag_force)
 	ray_cast_2d_4.target_position = drag_force
 	var displacement2 = missile_drag_position.rotated(rotation)
@@ -317,10 +407,12 @@ func _integrate_forces(state):
 		thrust_force = direction_vector.normalized() * power
 		fuel -= power_fuel_drain * power
 		if is_inverted:
-			apply_force(thrust_force.rotated(rotation), -displacement)
+			#thrust_force = thrust_force
+			apply_force(thrust_force.rotated(rotation), Vector2(0,0))
 		else:
-			apply_force(thrust_force.rotated(rotation), displacement)
-		
+			apply_force(thrust_force.rotated(rotation), Vector2(0,0))
+		ray_cast_2d_7.position = displacement
+		ray_cast_2d_7.target_position = thrust_force * 20
 		#if engine_angle == 0:
 			#apply_force(thrust_force, displacement)
 			##plume.position = displacement #+ Vector2(-50, 0)
@@ -339,31 +431,81 @@ func _integrate_forces(state):
 	var my_speed = linear_velocity.length()
 	current_angle = direction_vector.rotated(rotation).angle()
 	var delta_angle = current_angle - heading_angle
-	print("delta: {v}".format({"v":rad_to_deg(delta_angle)}))
-	if abs(c_torque_pitch) > 0:
-		apply_torque(my_speed * torque_pitch * c_torque_pitch)
-	else:
-		pass
-		if abs(delta_angle) > 0.1:
-			if is_inverted:
-				apply_torque(my_speed * torque_pitch_controlled * abs(delta_angle)/delta_angle)
-			else:
-				apply_torque(my_speed * torque_pitch_controlled * -abs(delta_angle)/delta_angle)
+	#print("delta: {v}".format({"v":rad_to_deg(delta_angle)}))
+	
+		#if abs(delta_angle) > 0.1:
+			#if is_inverted:
+				#apply_torque(my_speed * torque_pitch_controlled * abs(delta_angle)/delta_angle)
+			#else:
+				#apply_torque(my_speed * torque_pitch_controlled * -abs(delta_angle)/delta_angle)
 	
 	#apply_torque( torque_pitch * c_torque_pitch)
 	#print(my_speed)
-	ray_cast_2d_2.target_position = lift_force
+	
 	#print(thrust_force)
 	
-	print("my rotation: {v}".format({"v":rad_to_deg(my_rotation)}))
-	print("aa: {v}".format({"v":rad_to_deg(aa)}))
-	print("velocity vector: {v}".format({"v":velocity_vector}))
-	print("velocity vector angle: {v}".format({"v":rad_to_deg(velocity_vector.angle())}))
 	ray_cast_2d.target_position = direction_vector * 300
 	ray_cast_2d_3.target_position = velocity_vector
 	
-	label_3.set_text("{v}".format({"v": "%0.2f" % rad_to_deg(rotation)}))
-	label_2.set_text("{v}".format({"v": "%0.2f" % rad_to_deg(aa)}))
+	label_3.set_text("{v}".format({"v": "%0.2f" % rad_to_deg(heading_angle)}))
+	label_2.set_text("{v}".format({"v": "%0.2f" % rad_to_deg(current_angle)}))
+	#label_2.set_text("{v}".format({"v": "%0.2f" % rad_to_deg(aa)}))
+	
+	var wing_forces = wing.get_forces(state.linear_velocity, direction_vector.rotated(my_rotation))
+	#print(wing_forces)
+	#var hardcoded_wing_pos = Vector2(-100, 0)
+	if is_inverted:
+		#tail_wing_pos = -tail_wing_pos
+		wing_forces["lift_force"] = -wing_forces["lift_force"]
+		#if (heading_angle < PI and heading_angle > PI/2) or (heading_angle > -PI and heading_angle < -PI/2) :
+			#wing_forces["lift_force"] = wing_forces["lift_force"].rotated(rotation)
+			#wing_forces["drag_force"] = wing_forces["drag_force"].rotated(rotation)
+		#else:
+			#wing_forces["lift_force"].x = - wing_forces["lift_force"].x
+			#wing_forces["drag_force"] = wing_forces["drag_force"]
+		##wing_forces["drag_force"].x = -wing_forces["drag_force"].x
+		##wing_forces["drag_force"].x = - wing_forces["drag_force"].x
+		#apply_force(wing_forces["lift_force"], tail_wing_pos)
+		#apply_force(wing_forces["drag_force"], tail_wing_pos)
+		#
+	#else:
+		#wing_forces["lift_force"] = -wing_forces["lift_force"]
+		#wing_forces["drag_force"] = wing_forces["drag_force"] 
+	if abs(c_torque_pitch) > 0:
+		apply_torque(my_speed * torque_pitch * c_torque_pitch)
+	else:
+		angular_velocity = lerp(angular_velocity, 0.0, 0.01)
+		sas_on()
+		
+	wing_forces["lift_force"] = -wing_forces["lift_force"]
+	apply_force(wing_forces["lift_force"], tail_wing_pos)
+	apply_force(wing_forces["drag_force"], tail_wing_pos)
+		
+	ray_cast_2d_5.position = tail_wing_pos
+	ray_cast_2d_5.target_position = wing_forces["lift_force"] * 20
+	ray_cast_2d_6.position = tail_wing_pos
+	ray_cast_2d_6.target_position = wing_forces["drag_force"] * 20
+		
+	
+	#apply_force(wing_forces["lift_force"], wing.position)
+	#apply_force(wing_forces["drag_force"], wing.position)
+	
+	
+	#print("my rotation: {v}".format({"v":rad_to_deg(my_rotation)}))
+	#print("aa: {v}".format({"v":aa}))
+	#print("Main Lift: {v}".format({"v":lift_force}))
+	#print("Main vertival forces: {v}".format({"v": lift_force}))
+	#print("Main vertival forces: {v}".format({"v":lift_force.y + state.get_constant_force().y + drag_force.y + 
+		#- wing_forces["lift_force"].y - wing_forces["drag_force"].y
+	#}))
+	##print("aa: {v}".format({"v":rad_to_deg(aa)}))
+	#print("velocity vector: {v}".format({"v":velocity_vector.length()}))
+	#print("velocity vector angle: {v}".format({"v":rad_to_deg(velocity_vector.angle())}))
+	#
+	#print("Angular velocity: {v}".format({"v":state.angular_velocity}))
+	#print("Torque constant: {v}".format({"v":state.get_constant_torque()}))
+	#
+	#print("Tail Lift: {v}".format({"v":-wing_forces["lift_force"].y}))
 	
 func calculate_area_aa(aa):
 	if abs(aa) > PI/2:
@@ -373,3 +515,8 @@ func calculate_area_aa(aa):
 
 func _on_timer_prime_timeout():
 	collision_shape_2d.disabled = false
+
+
+func _on_rate_fire_timeout() -> void:
+	ready_to_fire = true
+	

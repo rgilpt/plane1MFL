@@ -1,0 +1,30 @@
+[gd_scene load_steps=4 format=3 uid="uid://x0l2jxsosyby"]
+
+[ext_resource type="Texture2D" uid="uid://0a5tau0ev4ek" path="res://assets/bomb.png" id="1_4kkau"]
+[ext_resource type="Script" uid="uid://cm74aqbuw7b1o" path="res://scenes/bomb.gd" id="1_vpdcx"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_vpdcx"]
+radius = 8.0
+height = 32.0
+
+[node name="Bomb" type="RigidBody2D"]
+mass = 0.2
+contact_monitor = true
+max_contacts_reported = 3
+script = ExtResource("1_vpdcx")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture_filter = 1
+texture = ExtResource("1_4kkau")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+rotation = 1.5708
+shape = SubResource("CapsuleShape2D_vpdcx")
+
+[node name="Timer" type="Timer" parent="."]
+wait_time = 0.3
+one_shot = true
+autostart = true
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
+[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]

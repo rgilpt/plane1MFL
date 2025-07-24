@@ -16,7 +16,11 @@ var drag_force = Vector2()
 @export var cd = 0.3
 @export var wing_profile_type:WingProfileType = WingProfileType.SYMETRICAL
 
+@export var parent_body:RigidBody2D = null
+
 var is_inverted = false
+
+var joint = false
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -32,17 +36,17 @@ func angle_of_attack_calculation(a, b):
 	return acos(a.dot(b)/(a.length() * b.length()))
 
 func lift_angle_of_attack_mod_simetrical(aa):
-	if aa > 0.01 and aa < 0.262:
+	if aa > 0.0001 and aa < 0.262:
 		return 5.747 * aa
 	elif aa >= 0.262 and aa < 0.35:
 		return 1.75
-	elif aa <= 0.262 and aa > 0.35:
+	elif aa <= -0.262 and aa > -0.35:
 		return -1.75
 	elif aa > 0.35:
 		return 0
 	elif aa < -0.35:
 		return 0
-	elif aa < -0.01 and aa > -0.262:
+	elif aa < -0.0001 and aa > -0.262:
 		return -5.747 * aa
 	else:
 		return 0
@@ -68,7 +72,7 @@ func drag_angle_of_attack_mod(aa):
 			(PI/2-(abs(aa) - PI/2))/ (PI/2)) + total_fins_section_area
 
 func lift_force_calc(aa, direction_vector, l_velocity):
-	var lift_force = direction_vector.rotated(-PI/2).normalized()
+	var lift_force = l_velocity.rotated(-PI/2).normalized()
 	
 	var lift_aa_coef = lift_angle_of_attack_mod_simetrical(aa)
 	var lift_force_length = (0.5 * .002377 * 
@@ -89,6 +93,8 @@ func drag_force_calc(aa, direction_vector, l_velocity):
 	return drag_force
 	
 func _integrate_forces(state):
+	if joint:
+		return
 	print(state.get_constant_force())
 	var direction_vector = Vector2(1,0)
 	var velocity_vector = state.linear_velocity
@@ -107,4 +113,31 @@ func _integrate_forces(state):
 	apply_force(drag_force, displacement)
 	
 	print("Wing Lift force: {v}".format({"v":lift_force.rotated(rotation)}))
+	
+	if parent_body != null:
+		parent_body.apply_force(lift_force, Vector2(-83,-2))
+		
+func get_forces(linear_velocity, direction):
+	var direction_vector = Vector2(1,0)
+	var velocity_vector = linear_velocity
+
+
+	#var aa = -(direction_vector.rotated(rotation)).angle_to(velocity_vector)
+	var aa = direction.angle_to(velocity_vector)
+	aa = wrapf(aa, -PI, PI)
+	#if is_inverted:
+		#aa = -aa
+
+	lift_force = lift_force_calc(aa, direction, linear_velocity)
+	drag_force = drag_force_calc(aa, direction, linear_velocity)
+
+	#var displacement = Vector2()
+	return {"lift_force": lift_force.rotated(rotation), "drag_force": drag_force}
+	#apply_force(lift_force.rotated(rotation), displacement)
+	#apply_force(drag_force, displacement)
+	
+	#print("Wing Lift force: {v}".format({"v":lift_force.rotated(rotation)}))
+	
+	#if parent_body != null:
+		#parent_body.apply_force(lift_force, Vector2(-83,-2))
 	

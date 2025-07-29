@@ -44,7 +44,10 @@ var max_left_engine_angle = 10.0
 var max_right_engine_angle = -10.0
 
 var torque_pitch = 12
-var torque_pitch_controlled = 500
+
+var torque_pitch_controlled = 1000
+var controlled_angular_velocity = 0.05
+
 var c_torque_pitch = 0
 var change_angle = -1.8
 var change_angle_nominal = -0.2
@@ -52,6 +55,7 @@ var is_inverted = false
 var current_angle = 0
 var is_pitching = false
 
+var my_rotation = 0
 var heading_angle = 0
 
 var rof:float = 0.7
@@ -88,6 +92,8 @@ var ammo_bombs = 4
 
 var prestige = 0
 
+@onready var altitude_reader: RayCast2D = $AltitudeReader
+
 func fired(initial_speed_value, power, initial_angle, engine=true):
 	
 	self.rotate(initial_angle)
@@ -100,17 +106,47 @@ func fired(initial_speed_value, power, initial_angle, engine=true):
 		
 	
 func _ready() -> void:
+	
+	
 	is_restarting = false
 	wing.joint = true
 	
+	if Global.difficult_selection == Global.Difficult.EASY:
+		torque_pitch_controlled = 1000
+		controlled_angular_velocity = 0.05
+		ammo_bombs = 5
+	else:
+		torque_pitch_controlled = 500
+		controlled_angular_velocity = 0.01
+		ammo_bombs = 4
+		
+		
+	
+	
 	
 func sas_on():
+	angular_velocity = lerp(angular_velocity, 0.0, controlled_angular_velocity)
 	var difference = current_angle - heading_angle
 	label.set_text("{v}".format({"v": "%0.2f" % rad_to_deg(difference)}))
 	if abs(difference) > 0.02:
 		apply_torque( sign(-difference) * torque_pitch_controlled)
 	
 func _physics_process(delta):
+	
+	#altitude_reader.position = Vector2(0,0)
+	var world_down_point = global_position + Vector2.DOWN * 1000
+	var local_down_point = to_local(world_down_point)
+	altitude_reader.target_position =  local_down_point
+	var collider = altitude_reader.get_collider()
+	var col_point = altitude_reader.get_collision_point()
+	var local_col_point = to_local(col_point)
+	
+	print(local_col_point.y)
+	if abs(local_col_point.y) > 1000:
+		var coef_zoom = abs(1000/local_col_point.y)
+		camera_2d.zoom = Vector2(0.3* coef_zoom,0.3* coef_zoom)
+	else:
+		camera_2d.zoom = Vector2(0.3,0.3 )
 	#if not has_engine:
 		#plume.set_off()
 	
@@ -352,7 +388,7 @@ func _integrate_forces(state):
 	var ray_cast_2d_7: RayCast2D = $RayCast2D7
 
 	heading_angle = wrapf(heading_angle, -PI, PI)
-	var my_rotation = rotation
+	my_rotation = rotation
 	
 	
 	var aa = -(direction_vector.rotated(my_rotation)).angle_to(velocity_vector)
@@ -474,7 +510,7 @@ func _integrate_forces(state):
 	if abs(c_torque_pitch) > 0:
 		apply_torque(my_speed * torque_pitch * c_torque_pitch)
 	else:
-		angular_velocity = lerp(angular_velocity, 0.0, 0.01)
+		
 		sas_on()
 		
 	wing_forces["lift_force"] = -wing_forces["lift_force"]

@@ -77,7 +77,7 @@ var bomb_fire_coef = 1.0
 
 @onready var wing: RigidBody2D = $Wing
 var tail_wing_pos = Vector2(-100, 0)
-@onready var trottle_viewer: TextureProgressBar = $"../CanvasLayer/TrottleViewer"
+@onready var trottle_viewer: TextureProgressBar = $"CanvasLayer/TrottleViewer"
 
 var is_restarting:bool = false
 var is_starting:bool = true
@@ -93,6 +93,10 @@ var ammo_bombs = 4
 var prestige = 0
 
 @onready var altitude_reader: RayCast2D = $AltitudeReader
+var current_coef_zoom = 0.3
+var step_alt_coef_zoom = 0
+var next_reading = 1.4
+var current_reading = 1
 
 func fired(initial_speed_value, power, initial_angle, engine=true):
 	
@@ -132,6 +136,7 @@ func sas_on():
 		apply_torque( sign(-difference) * torque_pitch_controlled)
 	
 func _physics_process(delta):
+	current_reading += delta
 	
 	#altitude_reader.position = Vector2(0,0)
 	var world_down_point = global_position + Vector2.DOWN * 1000
@@ -140,16 +145,23 @@ func _physics_process(delta):
 	var collider = altitude_reader.get_collider()
 	var col_point = altitude_reader.get_collision_point()
 	var local_col_point = to_local(col_point)
+	if current_reading > next_reading:
+		step_alt_coef_zoom = abs(local_col_point.y)
+		current_reading = 0
+		#print(local_col_point.y)
 	
-	print(local_col_point.y)
-	if abs(local_col_point.y) > 1000:
-		var coef_zoom = abs(1000/local_col_point.y)
-		camera_2d.zoom = Vector2(0.3* coef_zoom,0.3* coef_zoom)
+	if abs(local_col_point.y) > 900:
+		var coef_zoom = abs(900/local_col_point.y) * 0.8 + 900/step_alt_coef_zoom * 0.2
+		current_coef_zoom = lerp(current_coef_zoom, 0.3 * coef_zoom, 0.03)
+		current_coef_zoom = clampf(current_coef_zoom, 0.1, 0.3)
+		camera_2d.zoom = Vector2(current_coef_zoom, current_coef_zoom)
 	else:
-		camera_2d.zoom = Vector2(0.3,0.3 )
+		current_coef_zoom = lerp(current_coef_zoom, 0.3, 0.003)
+		current_coef_zoom = clampf(current_coef_zoom, 0.1, 0.3)
+		camera_2d.zoom = Vector2(current_coef_zoom, current_coef_zoom)
 	#if not has_engine:
 		#plume.set_off()
-	
+	#print(current_coef_zoom)
 	#if camera_2d != null and not destroyed:
 		##car.get_node("Camera2D").enabled = false
 		#camera_2d.enabled = true
@@ -228,7 +240,7 @@ func _physics_process(delta):
 	if Input.is_action_just_released("ui_restart"):
 		is_restarting = true
 		$Timer.start()
-	$"../CanvasLayer/L_Prestige".set_text(
+	$"CanvasLayer/L_Prestige".set_text(
 		"Prestige: {v}".format({"v": "%0.2f" % prestige}))
 
 		#get_tree().reload_current_scene()

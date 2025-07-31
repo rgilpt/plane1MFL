@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://cv6hgjshhejvp"]
+[gd_scene load_steps=14 format=3 uid="uid://cv6hgjshhejvp"]
 
 [ext_resource type="Script" uid="uid://b1h5ggnqumey2" path="res://scripts/Bullet.gd" id="1_m4fpe"]
 [ext_resource type="Texture2D" uid="uid://b05bhi2vvr0p3" path="res://assets/plane.png" id="2_ec1pi"]
@@ -17,6 +17,26 @@ absorbent = true
 radius = 3.0
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_a5iv8"]
+
+[sub_resource type="Gradient" id="Gradient_h4emf"]
+offsets = PackedFloat32Array(0)
+colors = PackedColorArray(0.129558, 0.129558, 0.129558, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_ec1pi"]
+gradient = SubResource("Gradient_h4emf")
+width = 16
+height = 128
+fill_to = Vector2(0, 1)
+
+[sub_resource type="Gradient" id="Gradient_xxx3y"]
+colors = PackedColorArray(0.737255, 0, 0, 1, 1, 0.596078, 0.407843, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_gvt5p"]
+gradient = SubResource("Gradient_xxx3y")
+width = 16
+height = 128
+fill_from = Vector2(0, 1)
+fill_to = Vector2(0.388889, 0)
 
 [node name="Plane" type="RigidBody2D" groups=["Plane"]]
 collision_layer = 2
@@ -195,6 +215,24 @@ one_shot = true
 [node name="AltitudeReader" type="RayCast2D" parent="."]
 target_position = Vector2(0, 1000)
 collision_mask = 2048
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="TrottleViewer" type="TextureProgressBar" parent="CanvasLayer"]
+offset_left = 1052.0
+offset_top = 420.0
+offset_right = 1068.0
+offset_bottom = 548.0
+value = 80.0
+fill_mode = 3
+texture_under = SubResource("GradientTexture2D_ec1pi")
+texture_progress = SubResource("GradientTexture2D_gvt5p")
+
+[node name="L_Prestige" type="Label" parent="CanvasLayer"]
+offset_left = 40.0
+offset_top = 16.0
+offset_right = 80.0
+offset_bottom = 39.0
 
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]
 [connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]

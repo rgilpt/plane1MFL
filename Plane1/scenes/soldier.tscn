@@ -1,10 +1,13 @@
-[gd_scene load_steps=4 format=3 uid="uid://cehage3vp8t2b"]
+[gd_scene load_steps=5 format=3 uid="uid://cehage3vp8t2b"]
 
 [ext_resource type="Texture2D" uid="uid://codvwfkqxxy4x" path="res://assets/Soldier1.png" id="1_3ekc7"]
 [ext_resource type="Script" uid="uid://cb121g5ixix3m" path="res://scenes/soldier.gd" id="1_q2rr1"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_q2rr1"]
 height = 64.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_q2rr1"]
+radius = 2000.0
 
 [node name="Soldier" type="CharacterBody2D"]
 script = ExtResource("1_q2rr1")
@@ -15,3 +18,17 @@ texture = ExtResource("1_3ekc7")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CapsuleShape2D_q2rr1")
+
+[node name="Perception" type="Area2D" parent="."]
+collision_mask = 3
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Perception"]
+shape = SubResource("CircleShape2D_q2rr1")
+
+[node name="Label" type="Label" parent="."]
+offset_left = -59.0
+offset_top = -67.0
+offset_right = -19.0
+offset_bottom = -44.0
+
+[connection signal="body_entered" from="Perception" to="." method="_on_perception_body_entered"]

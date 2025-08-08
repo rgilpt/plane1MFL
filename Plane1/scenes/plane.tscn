@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://cv6hgjshhejvp"]
+[gd_scene load_steps=20 format=3 uid="uid://cv6hgjshhejvp"]
 
 [ext_resource type="Script" uid="uid://b1h5ggnqumey2" path="res://scripts/Bullet.gd" id="1_m4fpe"]
 [ext_resource type="Texture2D" uid="uid://b05bhi2vvr0p3" path="res://assets/plane.png" id="2_ec1pi"]
@@ -38,7 +38,33 @@ height = 128
 fill_from = Vector2(0, 1)
 fill_to = Vector2(0.388889, 0)
 
-[node name="Plane" type="RigidBody2D" groups=["Plane"]]
+[sub_resource type="Gradient" id="Gradient_ec1pi"]
+offsets = PackedFloat32Array(0)
+colors = PackedColorArray(0.194349, 0.194349, 0.194349, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_lf188"]
+gradient = SubResource("Gradient_ec1pi")
+width = 128
+height = 16
+
+[sub_resource type="Gradient" id="Gradient_7mohe"]
+offsets = PackedFloat32Array(0, 0.565217)
+colors = PackedColorArray(0, 0, 0.537255, 1, 0.227425, 0.227425, 0.642495, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_nqcjx"]
+gradient = SubResource("Gradient_7mohe")
+width = 128
+height = 16
+
+[sub_resource type="Gradient" id="Gradient_gvt5p"]
+colors = PackedColorArray(0.32827, 0.099533, 0.129792, 1, 0.909804, 0.227451, 0.14902, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_7mohe"]
+gradient = SubResource("Gradient_gvt5p")
+width = 128
+height = 16
+
+[node name="Plane" type="RigidBody2D" groups=["Plane", "Player"]]
 collision_layer = 2
 collision_mask = 2
 mass = 0.8
@@ -233,6 +259,38 @@ offset_left = 40.0
 offset_top = 16.0
 offset_right = 80.0
 offset_bottom = 39.0
+
+[node name="LFuel" type="Label" parent="CanvasLayer"]
+offset_left = 24.0
+offset_top = 594.0
+offset_right = 64.0
+offset_bottom = 617.0
+text = "Fuel:"
+
+[node name="FuelProgressBar" type="TextureProgressBar" parent="CanvasLayer"]
+offset_left = 93.0
+offset_top = 600.0
+offset_right = 221.0
+offset_bottom = 616.0
+value = 100.0
+texture_under = SubResource("GradientTexture2D_lf188")
+texture_progress = SubResource("GradientTexture2D_nqcjx")
+
+[node name="LHealth" type="Label" parent="CanvasLayer"]
+offset_left = 25.0
+offset_top = 618.0
+offset_right = 65.0
+offset_bottom = 641.0
+text = "Health:"
+
+[node name="HealthProgressBar" type="TextureProgressBar" parent="CanvasLayer"]
+offset_left = 93.0
+offset_top = 622.0
+offset_right = 221.0
+offset_bottom = 638.0
+value = 100.0
+texture_under = SubResource("GradientTexture2D_lf188")
+texture_progress = SubResource("GradientTexture2D_7mohe")
 
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]
 [connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]

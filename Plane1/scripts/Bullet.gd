@@ -27,11 +27,16 @@ var missile_section_area = 0.001
 var destroyed = false
 
 var has_engine = true
-var fuel = 3000
+
 var power = 0
 var max_power = 1800
 var delta_power = 10
+
+var max_fuel = 900
+var fuel = 900
 var power_fuel_drain = 0.0001
+@onready var fuel_progress_bar: TextureProgressBar = $CanvasLayer/FuelProgressBar
+
 var thrust_force = Vector2()
 
 var bullet_angle = 0.0
@@ -63,6 +68,10 @@ var ready_to_fire:bool = true
 @onready var rate_fire: Timer = $RateFire
 
 var bomb_fire_coef = 1.0
+
+var health = 100
+var max_health = 100
+@onready var health_progress_bar: TextureProgressBar = $CanvasLayer/HealthProgressBar
 
 @onready var collision_shape_2d = $CollisionShape2D
 
@@ -134,9 +143,28 @@ func sas_on():
 	label.set_text("{v}".format({"v": "%0.2f" % rad_to_deg(difference)}))
 	if abs(difference) > 0.02:
 		apply_torque( sign(-difference) * torque_pitch_controlled)
-	
+
+func receive_damage(power):
+	health -= power
+	var tween = get_tree().create_tween()
+	tween.tween_property($Sprite2D, "modulate", Color.RED, 0.7)
+	tween.tween_property($Sprite2D, "modulate", Color.WHITE, 0.7)
+
 func _physics_process(delta):
 	current_reading += delta
+	var l_fuel: Label = $LFuel
+	
+	if Input.is_action_just_released("ui_restart"):
+		is_restarting = true
+		$Timer.start()
+	
+	if health <= 0:
+		return
+	
+	#l_fuel.set_text("Fuel: {fuel}".format({"fuel":fuel}))
+	fuel = clamp(fuel, 0, max_fuel)
+	var current_fuel_value = 100.0/max_fuel * fuel
+	fuel_progress_bar.value = current_fuel_value
 	
 	#altitude_reader.position = Vector2(0,0)
 	var world_down_point = global_position + Vector2.DOWN * 1000
@@ -219,6 +247,7 @@ func _physics_process(delta):
 		rate_fire.start()
 
 		var new_bullet = BULLET.instantiate()
+		new_bullet.set_collision_layer(1)
 		var new_speed = Vector2(1,0).rotated(rotation) * 2000
 		new_bullet.set_speed(new_speed)
 		new_bullet.position = position + Vector2(70,-30).rotated(rotation)
@@ -237,9 +266,7 @@ func _physics_process(delta):
 	
 	if Input.is_action_just_released("ui_reset_position"):
 		self.position = Vector2(0, -500)
-	if Input.is_action_just_released("ui_restart"):
-		is_restarting = true
-		$Timer.start()
+	
 	$"CanvasLayer/L_Prestige".set_text(
 		"Prestige: {v}".format({"v": "%0.2f" % prestige}))
 
@@ -388,8 +415,28 @@ func drag_force_calc(aa, direction_vector, l_velocity):
 func _integrate_forces(state):
 	if is_restarting:
 		return
+		
+	
+		
 	var direction_vector = Vector2(1,0)
 	var velocity_vector = state.linear_velocity
+	
+	var damage_collision = 0
+	for i in state.get_contact_count():
+		var normal = state.get_contact_local_normal(i)
+		#print("Normal at contact ", i, ": ", normal)
+		var proj_velocity_normal = velocity_vector.dot(normal)
+		proj_velocity_normal /= 10
+		proj_velocity_normal = abs(proj_velocity_normal)
+		health -= proj_velocity_normal
+		damage_collision += proj_velocity_normal
+		if damage_collision > 50:
+			break
+		#print("collision strength ", ": ", proj_velocity_normal)
+	
+	health = clamp(health, 0, max_health)
+	var current_health_value = 100.0/max_health * health
+	health_progress_bar.value = current_health_value
 	
 	var ray_cast_2d: RayCast2D = $RayCast2D
 	var ray_cast_2d_2: RayCast2D = $RayCast2D2

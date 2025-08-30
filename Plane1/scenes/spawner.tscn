@@ -1,0 +1,23 @@
+[gd_scene load_steps=3 format=3 uid="uid://b0uswpnrq48po"]
+
+[ext_resource type="Texture2D" uid="uid://vuxxtiv4btid" path="res://assets/Building1.png" id="1_2vbf6"]
+[ext_resource type="Script" uid="uid://1f15ayub0f15" path="res://scenes/spawner.gd" id="1_ik2nu"]
+
+[node name="Spawner" type="Node2D"]
+script = ExtResource("1_ik2nu")
+
+[node name="TimerShort" type="Timer" parent="."]
+wait_time = 4.0
+one_shot = true
+
+[node name="TimerLong" type="Timer" parent="."]
+wait_time = 20.0
+one_shot = true
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture_filter = 1
+scale = Vector2(4, 4)
+texture = ExtResource("1_2vbf6")
+
+[connection signal="timeout" from="TimerShort" to="." method="_on_timer_short_timeout"]
+[connection signal="timeout" from="TimerLong" to="." method="_on_timer_long_timeout"]

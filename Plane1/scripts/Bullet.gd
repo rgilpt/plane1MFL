@@ -152,13 +152,14 @@ func receive_damage(power):
 
 func _physics_process(delta):
 	current_reading += delta
-	var l_fuel: Label = $LFuel
+	#var l_fuel: Label = $LFuel
 	
 	if Input.is_action_just_released("ui_restart"):
 		is_restarting = true
 		$Timer.start()
 	
 	if health <= 0:
+		power = 0
 		return
 	
 	#l_fuel.set_text("Fuel: {fuel}".format({"fuel":fuel}))

@@ -4,7 +4,7 @@ extends Node2D
 @onready var area_2d: Area2D = $Area2D
 
 var power = 80
-var power_random = 20
+var power_random = 40
 var it_exploded = false
 
 # Called when the node enters the scene tree for the first time.

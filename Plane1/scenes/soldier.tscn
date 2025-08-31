@@ -1221,8 +1221,6 @@ height = 64.0
 radius = 2000.0
 
 [node name="Soldier" type="CharacterBody2D" node_paths=PackedStringArray("fsm")]
-process_priority = 3
-process_physics_priority = 3
 scale = Vector2(1.5, 1.5)
 script = ExtResource("1_q2rr1")
 fsm = NodePath("AI/FiniteStateMachine")
@@ -1440,6 +1438,7 @@ wait_time = 2.0
 one_shot = true
 
 [node name="T_Action" type="Timer" parent="."]
+wait_time = 2.0
 autostart = true
 
 [node name="AI" type="Node" parent="."]
@@ -1479,6 +1478,8 @@ fsm = NodePath("..")
 metadata/_custom_type_script = "uid://h7xj63jjxu7k"
 
 [node name="DecisionTree" type="Node" parent="AI" node_paths=PackedStringArray("action_selection")]
+process_priority = 1
+process_physics_priority = 1
 script = ExtResource("5_hpa1h")
 action_selection = NodePath("../ActionSelectionComponent")
 metadata/_custom_type_script = "uid://blax47eh88kmp"

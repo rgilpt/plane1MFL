@@ -121,9 +121,12 @@ position = Vector2(-8099, 677)
 scale = Vector2(4, 4)
 texture = ExtResource("4_t0ejs")
 
-[node name="Spawner" parent="Locartions" node_paths=PackedStringArray("soldiers") instance=ExtResource("5_t0ejs")]
+[node name="Spawner" parent="Locartions" node_paths=PackedStringArray("soldiers", "player") instance=ExtResource("5_t0ejs")]
 position = Vector2(11141, 759)
+n_wave_soldiers = 4
+n_waves = 1
 soldiers = NodePath("../../Soldiers")
+player = NodePath("../../Plane")
 
 [node name="Plane" parent="." instance=ExtResource("2_vs37y")]
 position = Vector2(-9735, 722)

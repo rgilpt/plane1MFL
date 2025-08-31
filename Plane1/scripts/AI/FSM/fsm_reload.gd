@@ -14,4 +14,5 @@ func _ready():
 
 func action_state():
 	if actor != null:
-		actor.velocity = Vector2()
+		actor.velocity.x = 0
+		actor.is_moving = false

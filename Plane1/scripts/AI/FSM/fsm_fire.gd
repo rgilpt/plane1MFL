@@ -15,6 +15,7 @@ func _ready():
 func action_state():
 	if actor == null:
 		return
+	actor.is_moving = false
 	target = fsm.target
 	if target == null:
 		return

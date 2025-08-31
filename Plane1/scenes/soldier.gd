@@ -11,18 +11,32 @@ const BULLET = preload("res://scenes/bullet.tscn")
 var velocity_coef = 0.5
 
 @export var fsm:FiniteStateMachine
+@onready var action_selection_component: ActionSelectionComponent = $AI/ActionSelectionComponent
 
 var is_starting = true
 @onready var t_alert: Timer = $T_Alert
+var is_moving = true
+var gravity = -10
 
+func _ready() -> void:
+	t_alert.wait_time = 2.0 + randf_range(0.5, 1.0)
+	
+func my_move():
+	if not is_on_floor():
+		velocity.y -= gravity
+	else:
+		velocity.y = 0
+	if is_moving:
+		velocity.x = - 80
+		move_and_slide()
 func _physics_process(delta: float) -> void:
 	
 	if is_starting:
+		fsm.get_action()
 		fsm.action_state()
 		is_starting = false
 	
-	if velocity.length() != 0:
-		move_and_slide()
+	my_move.call_deferred()
 
 func receive_damage(power):
 	health -= power
@@ -88,6 +102,8 @@ func _on_t_alert_timeout() -> void:
 
 
 func _on_t_action_timeout() -> void:
+	
 	if fsm.current_state != null:
+		fsm.call_deferred("get_action")
 		if fsm.current_state.has_method("action_state"):
-			fsm.current_state.action_state()
+			fsm.current_state.call_deferred("action_state")

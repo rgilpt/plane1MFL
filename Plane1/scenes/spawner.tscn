@@ -5,6 +5,8 @@
 
 [node name="Spawner" type="Node2D"]
 script = ExtResource("1_ik2nu")
+n_wave_soldiers = 3
+n_waves = 1
 
 [node name="TimerShort" type="Timer" parent="."]
 wait_time = 4.0

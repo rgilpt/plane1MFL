@@ -14,8 +14,9 @@ func _ready():
 func action_state():
 	if actor == null:
 		return
-	if not actor.is_on_floor():
-		actor.velocity.y -= gravity
-	else:
-		actor.velocity.y = 0
-	actor.velocity.x = velocity_x
+	actor.is_moving = true
+	#if not actor.is_on_floor():
+		#actor.velocity.y -= gravity
+	#else:
+		#actor.velocity.y = 0
+	#actor.velocity.x = velocity_x

@@ -1,7 +1,7 @@
 class_name FSM_Fire
 extends Node
 
-@export var actor: CharacterBody2D = null
+@export var actor: PathFollow2D = null
 var target = null
 @export var fsm: FiniteStateMachine = null
 

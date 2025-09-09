@@ -6,7 +6,7 @@ extends Node2D
 @export var soldiers: Node2D = null
 @export var player:RigidBody2D = null
 
-const SOLDIER = preload("res://scenes/soldier.tscn")
+const SOLDIER = preload("res://scenes/soldierV2.tscn")
 @onready var timer_short: Timer = $TimerShort
 @onready var timer_long: Timer = $TimerLong
 

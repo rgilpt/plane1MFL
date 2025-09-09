@@ -1,7 +1,7 @@
 class_name FSM_Alert
 extends Node
 
-@export var actor: CharacterBody2D = null
+@export var actor: PathFollow2D = null
 var target = null
 @export var fsm: FiniteStateMachine = null
 
@@ -15,4 +15,4 @@ func _ready():
 func action_state():
 	if actor != null:
 		actor.is_moving = false
-		actor.velocity = Vector2()
+		#actor.velocity = Vector2()

@@ -1221,7 +1221,6 @@ height = 64.0
 radius = 2000.0
 
 [node name="Soldier" type="CharacterBody2D" node_paths=PackedStringArray("fsm")]
-scale = Vector2(1.5, 1.5)
 script = ExtResource("1_q2rr1")
 fsm = NodePath("AI/FiniteStateMachine")
 
@@ -1231,6 +1230,7 @@ texture_filter = 1
 texture = ExtResource("1_3ekc7")
 
 [node name="SoldierSprite" type="Node2D" parent="."]
+scale = Vector2(1.5, 1.5)
 
 [node name="Skeleton2D" type="Skeleton2D" parent="SoldierSprite"]
 
@@ -1268,7 +1268,6 @@ region_rect = Rect2(0, 0, 16, 16)
 [node name="RightArm1" type="Bone2D" parent="SoldierSprite/Skeleton2D/Hip/Spine"]
 position = Vector2(-7, -9)
 rotation = 1.77892
-scale = Vector2(1, 1)
 rest = Transform2D(-0.206622, 0.978421, -0.978421, -0.206622, -7, -9)
 
 [node name="Sprite2D2" type="Sprite2D" parent="SoldierSprite/Skeleton2D/Hip/Spine/RightArm1"]
@@ -1306,7 +1305,6 @@ region_rect = Rect2(6.55926, 15.6981, 18.4764, 26.4883)
 [node name="LeftArm1" type="Bone2D" parent="SoldierSprite/Skeleton2D/Hip/Spine"]
 position = Vector2(7, -8)
 rotation = 1.0263
-scale = Vector2(1, 1)
 rest = Transform2D(0.517983, 0.855391, -0.855391, 0.517983, 7, -8)
 
 [node name="Sprite2D4" type="Sprite2D" parent="SoldierSprite/Skeleton2D/Hip/Spine/LeftArm1"]
@@ -1413,10 +1411,10 @@ libraries = {
 }
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+scale = Vector2(1.5, 1.5)
 shape = SubResource("CapsuleShape2D_q2rr1")
 
 [node name="Perception" type="Area2D" parent="."]
-visible = false
 collision_mask = 3
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Perception"]

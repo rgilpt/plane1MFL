@@ -1,7 +1,7 @@
 class_name FSM_Advance
 extends Node
 
-@export var actor: CharacterBody2D = null
+@export var actor: PathFollow2D = null
 @export var fsm: FiniteStateMachine = null
 
 var velocity_coef = 0.5

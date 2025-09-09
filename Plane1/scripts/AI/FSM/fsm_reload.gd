@@ -1,7 +1,7 @@
 class_name FSM_Reload
 extends Node
 
-@export var actor: CharacterBody2D = null
+@export var actor: PathFollow2D = null
 var target = null
 @export var fsm: FiniteStateMachine = null
 
@@ -14,5 +14,5 @@ func _ready():
 
 func action_state():
 	if actor != null:
-		actor.velocity.x = 0
+		#actor.velocity.x = 0
 		actor.is_moving = false

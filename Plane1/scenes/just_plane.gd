@@ -10,5 +10,5 @@ func _on_area_2d_body_entered(body: Node2D) -> void:
 			
 			new_plane.position = Vector2(-9735.0, 722)
 			add_child(new_plane)
-			for c in get_node("Soldiers").get_children():
+			for c in get_node("Soldiers/Path2D").get_children():
 				c.player = new_plane

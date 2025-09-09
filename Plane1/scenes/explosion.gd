@@ -32,3 +32,8 @@ func _on_gpu_particles_2d_finished():
 func _on_area_2d_body_entered(body: Node2D) -> void:
 	if body.has_method("receive_damage"):
 		body.receive_damage(power + randi_range(0, power_random))
+
+
+func _on_area_2d_area_entered(area: Area2D) -> void:
+	if area.has_method("receive_damage"):
+		area.receive_damage(power + randi_range(0, power_random))

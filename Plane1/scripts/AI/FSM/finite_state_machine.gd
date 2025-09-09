@@ -8,7 +8,7 @@ var current_state = null
 var long_decision_timer: Timer
 var short_decision_timer: Timer
 
-@export var actor: CharacterBody2D = null
+@export var actor: PathFollow2D = null
 @export var action_selection: ActionSelectionComponent = null
 
 var target = null
